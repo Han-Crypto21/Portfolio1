@@ -10,7 +10,242 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <style>
+/* ===== Tokens ===== */
+:root {
+  --navy: #0B1120;
+  --navy-2: #111827;
+  --navy-3: #1C2A3A;
+  --teal: #00D4AA;
+  --teal-2: #00A884;
+  --white: #F0F4FF;
+  --gray: #8FA3B8;
+  --card: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+  --radius: 14px;
+  --header-h: 68px;
+  --font-head: 'Syne', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+/* ===== Base ===== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: var(--header-h); }
+body {
+  margin: 0;
+  background: var(--navy);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: var(--teal); text-decoration: none; transition: color .2s; }
+a:hover { color: var(--white); }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+h1, h2, h3 { font-family: var(--font-head); line-height: 1.2; margin: 0; }
+p { margin: 0 0 1rem; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .9em; color: var(--teal); }
+
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 4px; }
+
+.container { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
+
+.skip-link {
+  position: absolute; left: 1rem; top: -4rem; z-index: 200;
+  background: var(--teal); color: var(--navy); padding: .6rem 1rem; border-radius: 8px; font-weight: 600;
+}
+.skip-link:focus { top: 1rem; color: var(--navy); }
+
+/* ===== Header / Nav ===== */
+.site-header {
+  position: fixed; inset: 0 0 auto 0; z-index: 100; height: var(--header-h);
+  background: rgba(11, 17, 32, .85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s, background .3s;
+}
+.site-header.scrolled { border-color: var(--border); background: rgba(11, 17, 32, .95); }
+.nav { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+.logo { font-family: var(--font-head); font-weight: 800; font-size: 1.3rem; color: var(--white); }
+.logo span { color: var(--teal); }
+.logo:hover { color: var(--white); }
+
+.nav-menu { display: flex; align-items: center; gap: .25rem; }
+.nav-link {
+  position: relative; display: block; padding: .5rem .8rem;
+  color: var(--gray); font-size: .92rem; font-weight: 500; border-radius: 8px;
+}
+.nav-link::after {
+  content: ''; position: absolute; left: .8rem; right: .8rem; bottom: .2rem; height: 2px;
+  background: var(--teal); transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease);
+}
+.nav-link:hover, .nav-link.active { color: var(--white); }
+.nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+.nav-cta { border: 1px solid var(--teal); color: var(--teal); margin-left: .5rem; }
+.nav-cta::after { display: none; }
+.nav-cta:hover, .nav-cta.active { background: var(--teal); color: var(--navy); }
+
+.nav-toggle { display: none; background: none; border: 0; padding: .5rem; cursor: pointer; }
+.nav-toggle span { display: block; width: 24px; height: 2px; margin: 5px 0; background: var(--white); transition: transform .3s, opacity .3s; }
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-block; padding: .8rem 1.6rem; border-radius: 10px; border: 1px solid transparent;
+  font: 600 .95rem var(--font-body); cursor: pointer;
+  transition: transform .25s var(--ease), background .25s, color .25s, border-color .25s, box-shadow .25s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: var(--teal); color: var(--navy); }
+.btn-primary:hover { background: var(--white); color: var(--navy); box-shadow: 0 8px 24px rgba(0, 212, 170, .2); }
+.btn-outline { border-color: var(--border); color: var(--white); background: transparent; }
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+.btn-sm { padding: .55rem 1.1rem; font-size: .88rem; }
+
+/* ===== Hero ===== */
+.hero { padding: calc(var(--header-h) + 4rem) 0 5rem; min-height: 100svh; display: flex; align-items: center;
+  background: radial-gradient(900px 500px at 85% 20%, rgba(0, 212, 170, .08), transparent 60%), var(--navy); }
+.hero-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 3rem; align-items: center; }
+.eyebrow { color: var(--teal); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; font-size: .8rem; margin-bottom: .6rem; }
+.hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; }
+.hero-role { font-family: var(--font-head); font-size: clamp(1.15rem, 2.5vw, 1.6rem); color: var(--teal); margin: .6rem 0 1.2rem; }
+.hero-desc { color: var(--gray); max-width: 58ch; font-size: 1.05rem; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin: 1.8rem 0 1.5rem; }
+.hero-open { display: flex; align-items: center; gap: .6rem; color: var(--gray); font-size: .9rem; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--teal); flex: none; }
+.hero-photo { justify-self: center; width: min(360px, 80%); }
+.photo-frame { position: relative; border-radius: 20px; padding: 8px; background: linear-gradient(145deg, var(--teal), var(--navy-3)); }
+.photo-frame img { width: 100%; height: auto; aspect-ratio: 4 / 4.8; object-fit: cover; object-position: top; border-radius: 14px; }
+
+/* ===== Sections ===== */
+.section { padding: 5.5rem 0; }
+.section-alt { background: var(--navy-2); }
+.section-head { margin-bottom: 2.5rem; }
+.section-head h2 { font-size: clamp(1.7rem, 3.5vw, 2.4rem); font-weight: 700; }
+
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.6rem;
+  transition: transform .3s var(--ease), border-color .3s, box-shadow .3s;
+}
+.card:hover { transform: translateY(-4px); border-color: rgba(0, 212, 170, .4); box-shadow: 0 12px 32px rgba(0, 0, 0, .25); }
+
+/* About */
+.about-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 3rem; align-items: start; }
+.about-text p { color: var(--gray); font-size: 1.05rem; }
+.interest-list { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.4rem; }
+.interest-list li, .tags li {
+  background: rgba(0, 212, 170, .08); border: 1px solid rgba(0, 212, 170, .2);
+  color: var(--teal); font-size: .85rem; padding: .3rem .8rem; border-radius: 999px;
+}
+.timeline-title { font-size: 1.15rem; margin-bottom: 1.2rem; }
+.timeline ol { border-left: 2px solid var(--border); padding-left: 1.4rem; display: grid; gap: 1.4rem; }
+.timeline li { position: relative; display: grid; gap: .1rem; }
+.timeline li::before { content: ''; position: absolute; left: -1.4rem; top: .5rem; width: 10px; height: 10px; border-radius: 50%; background: var(--teal); transform: translateX(-6px); }
+.timeline li span:last-child { color: var(--gray); font-size: .92rem; }
+.tl-date { color: var(--teal); font-size: .8rem; font-weight: 600; }
+
+/* Skills */
+.skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.skill-card h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+.tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* Experience */
+.exp-list { display: grid; gap: 1.25rem; }
+.exp-head { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.exp-head h3 { font-size: 1.25rem; }
+.exp-org { color: var(--teal); font-weight: 600; margin: .2rem 0 0; }
+.exp-date { color: var(--gray); font-size: .9rem; background: var(--card); border: 1px solid var(--border); padding: .25rem .8rem; border-radius: 999px; align-self: flex-start; }
+.exp-points { display: grid; gap: .5rem; margin-bottom: 1rem; }
+.exp-points li { position: relative; padding-left: 1.3rem; color: var(--gray); }
+.exp-points li::before { content: ''; position: absolute; left: 0; top: .7em; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+.exp-card .exp-points { margin-bottom: 0; }
+
+/* Projects */
+.projects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.project-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.project-thumb { background: var(--navy); border-bottom: 1px solid var(--border); padding: 1.6rem; min-height: 120px; display: flex; align-items: center; }
+.project-thumb pre { margin: 0; white-space: pre-wrap; color: var(--teal); font-size: .85rem; line-height: 1.7; }
+.project-body { padding: 1.6rem; display: flex; flex-direction: column; flex: 1; }
+.project-body h3 { font-size: 1.3rem; margin-bottom: .6rem; }
+.project-body > p { color: var(--gray); }
+.project-body .tags { margin-top: auto; }
+
+/* Certifications */
+.cert-main { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 2.5rem; }
+.cert-icon { font-size: 2rem; width: 56px; height: 56px; display: grid; place-items: center; background: rgba(0, 212, 170, .1); border-radius: 12px; flex: none; }
+.cert-main h3 { font-size: 1.2rem; }
+.cert-main p { color: var(--gray); margin: .2rem 0 0; }
+.cert-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.cert-toolbar h3 { font-size: 1.15rem; }
+.cert-note { color: var(--gray); font-size: .9rem; margin: .6rem 0 1.4rem; }
+.cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
+.cert-item { padding: 0; overflow: hidden; cursor: pointer; text-align: left; font: inherit; color: inherit; width: 100%; }
+.cert-item .cert-img { aspect-ratio: 4 / 3; background: var(--navy-3); display: grid; place-items: center; overflow: hidden; }
+.cert-item img { width: 100%; height: 100%; object-fit: cover; }
+.cert-item .cert-ph { color: var(--gray); font-size: .85rem; padding: 1rem; text-align: center; }
+.cert-item .cert-cap { padding: .9rem 1.1rem; font-weight: 500; font-size: .95rem; }
+.cert-item .cert-cap small { display: block; color: var(--gray); font-weight: 400; }
+
+/* Contact */
+.contact-grid { max-width: 640px; }
+.contact-intro { color: var(--gray); font-size: 1.05rem; }
+.contact-list { margin: 1.5rem 0 2rem; display: grid; gap: 1rem; }
+.contact-list li { display: grid; gap: .1rem; border-left: 2px solid var(--teal); padding-left: 1rem; }
+.c-label { color: var(--gray); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; }
+.contact-list a { overflow-wrap: anywhere; }
+
+/* Footer */
+.site-footer { border-top: 1px solid var(--border); padding: 1.6rem 0; color: var(--gray); font-size: .9rem; }
+.footer-inner { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.footer-inner p { margin: 0; }
+
+/* Lightbox */
+.lightbox { position: fixed; inset: 0; z-index: 300; background: rgba(5, 8, 16, .92); display: grid; place-items: center; padding: 2rem; }
+.lightbox[hidden] { display: none; }
+.lightbox img { max-height: 88vh; max-width: 100%; border-radius: 10px; }
+.lightbox-close { position: absolute; top: 1rem; right: 1.2rem; background: none; border: 0; color: var(--white); font-size: 2.4rem; line-height: 1; cursor: pointer; }
+.lightbox-close:hover { color: var(--teal); }
+
+/* ===== Reveal on scroll ===== */
+.js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.js .reveal.visible { opacity: 1; transform: none; }
+
+/* ===== Responsive ===== */
+@media (max-width: 960px) {
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+  .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+}
+@media (max-width: 820px) {
+  .nav-toggle { display: block; }
+  .nav-menu {
+    position: absolute; top: var(--header-h); left: 0; right: 0; flex-direction: column; align-items: stretch;
+    background: var(--navy); border-bottom: 1px solid var(--border); padding: .75rem 1.25rem 1.25rem; gap: .2rem;
+    transform: translateY(-8px); opacity: 0; visibility: hidden; transition: opacity .25s, transform .25s, visibility .25s;
+  }
+  .nav-menu.open { opacity: 1; transform: none; visibility: visible; }
+  .nav-cta { margin: .5rem 0 0; text-align: center; }
+  .hero-grid { grid-template-columns: 1fr; text-align: left; }
+  .hero-photo { order: -1; width: min(240px, 60%); justify-self: start; }
+  .projects-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .section { padding: 4rem 0; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .hero-actions .btn { flex: 1 1 100%; text-align: center; }
+  .cert-main { align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  .js .reveal { opacity: 1; transform: none; }
+}
+</style>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -281,7 +516,7 @@ WHERE status = 'available';</code></pre>
         </div>
         <p class="cert-note reveal">
           Click a certificate to enlarge it. Certificates uploaded here are only previewed in your own browser.
-          To show them permanently on the site, add the image files to <code>assets/certificates/</code> and list them in <code>js/script.js</code>.
+          To show them permanently on the site, upload the image files to your repository and list them in the <code>CERTIFICATES</code> list inside the script at the bottom of this file.
         </p>
         <div class="cert-grid" id="certGrid" aria-live="polite"></div>
       </div>
@@ -332,6 +567,179 @@ WHERE status = 'available';</code></pre>
     <img id="lightboxImg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">
   </div>
 
-  <script src="script.js"></script>
+  <script>
+(function () {
+  'use strict';
+
+  document.documentElement.classList.add('js');
+
+  /* ---------- Certificates ----------
+     To show a certificate permanently:
+     1) Put the image file in assets/certificates/
+     2) Add an entry below (title, issuer, file). */
+  var CERTIFICATES = [
+    {
+      title: 'Python Essentials 1',
+      issuer: 'Cisco Networking Academy',
+      file: 'cisco-python-essentials-1.jpg'
+    }
+  ];
+
+  var header = document.getElementById('header');
+  var navToggle = document.getElementById('navToggle');
+  var navMenu = document.getElementById('navMenu');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-link'));
+  var certGrid = document.getElementById('certGrid');
+  var certUpload = document.getElementById('certUpload');
+  var lightbox = document.getElementById('lightbox');
+  var lightboxImg = document.getElementById('lightboxImg');
+  var lightboxClose = document.getElementById('lightboxClose');
+  var lastFocus = null;
+
+  /* ---------- Footer year ---------- */
+  var yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  /* ---------- Header shadow on scroll ---------- */
+  function onScroll() {
+    header.classList.toggle('scrolled', window.scrollY > 10);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- Mobile nav ---------- */
+  function setMenu(open) {
+    navMenu.classList.toggle('open', open);
+    navToggle.setAttribute('aria-expanded', String(open));
+  }
+  navToggle.addEventListener('click', function () {
+    setMenu(!navMenu.classList.contains('open'));
+  });
+  navLinks.forEach(function (link) {
+    link.addEventListener('click', function () { setMenu(false); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (!lightbox.hidden) closeLightbox();
+      else setMenu(false);
+    }
+  });
+  document.addEventListener('click', function (e) {
+    if (navMenu.classList.contains('open') && !header.contains(e.target)) setMenu(false);
+  });
+
+  /* ---------- Reveal on scroll ---------- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var revealObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function (el) { revealObs.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('visible'); });
+  }
+
+  /* ---------- Active nav link ---------- */
+  var sections = navLinks
+    .map(function (l) { return document.querySelector(l.getAttribute('href')); })
+    .filter(Boolean);
+
+  function updateActive() {
+    var pos = window.scrollY + 120;
+    var current = sections[0];
+    sections.forEach(function (s) { if (s.offsetTop <= pos) current = s; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+      current = sections[sections.length - 1];
+    }
+    navLinks.forEach(function (l) {
+      var on = current && l.getAttribute('href') === '#' + current.id;
+      l.classList.toggle('active', on);
+      if (on) l.setAttribute('aria-current', 'true'); else l.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  window.addEventListener('resize', updateActive);
+  updateActive();
+
+  /* ---------- Certificates gallery ---------- */
+  function makeCertCard(cert) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'card cert-item';
+    btn.setAttribute('aria-label', 'View certificate: ' + cert.title);
+
+    var imgWrap = document.createElement('div');
+    imgWrap.className = 'cert-img';
+
+    var img = document.createElement('img');
+    img.alt = cert.title + (cert.issuer ? ' certificate, ' + cert.issuer : ' certificate');
+    img.loading = 'lazy';
+    img.addEventListener('error', function () {
+      imgWrap.textContent = '';
+      var ph = document.createElement('span');
+      ph.className = 'cert-ph';
+      ph.textContent = 'Certificate image not added yet. Place the file at ' + cert.file;
+      imgWrap.appendChild(ph);
+      btn.dataset.missing = 'true';
+    });
+    img.src = cert.file;
+    imgWrap.appendChild(img);
+
+    var cap = document.createElement('div');
+    cap.className = 'cert-cap';
+    cap.textContent = cert.title;
+    if (cert.issuer) {
+      var small = document.createElement('small');
+      small.textContent = cert.issuer;
+      cap.appendChild(small);
+    }
+
+    btn.appendChild(imgWrap);
+    btn.appendChild(cap);
+    btn.addEventListener('click', function () {
+      if (btn.dataset.missing === 'true') return;
+      openLightbox(img.src, img.alt, btn);
+    });
+    return btn;
+  }
+
+  CERTIFICATES.forEach(function (c) { certGrid.appendChild(makeCertCard(c)); });
+
+  certUpload.addEventListener('change', function () {
+    Array.prototype.forEach.call(certUpload.files, function (file) {
+      if (!file.type || file.type.indexOf('image/') !== 0) return;
+      var url = URL.createObjectURL(file);
+      var title = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+      certGrid.appendChild(makeCertCard({ title: title, issuer: 'Uploaded preview', file: url }));
+    });
+    certUpload.value = '';
+  });
+
+  /* ---------- Lightbox ---------- */
+  function openLightbox(src, alt, trigger) {
+    lastFocus = trigger || document.activeElement;
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightbox.hidden = false;
+    document.body.style.overflow = 'hidden';
+    lightboxClose.focus();
+  }
+  function closeLightbox() {
+    lightbox.hidden = true;
+    lightboxImg.removeAttribute('src');
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) closeLightbox();
+  });
+})();
+</script>
 </body>
 </html>
