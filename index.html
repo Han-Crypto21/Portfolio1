@@ -245,6 +245,8 @@ code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .9em; c
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
   .js .reveal { opacity: 1; transform: none; }
 }
+.cert-gallery-title{font-size:1.15rem;margin-bottom:1.2rem}
+#certGallery[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -507,18 +509,10 @@ WHERE status = 'available';</code></pre>
           </div>
         </article>
 
-        <div class="cert-toolbar reveal">
-          <h3>Certificate Gallery</h3>
-          <div>
-            <label class="btn btn-outline btn-sm" for="certUpload">Upload certificate</label>
-            <input type="file" id="certUpload" accept="image/*" multiple hidden>
-          </div>
+        <div id="certGallery" hidden>
+          <h3 class="cert-gallery-title">Certificate Gallery</h3>
+          <div class="cert-grid" id="certGrid"></div>
         </div>
-        <p class="cert-note reveal">
-          Click a certificate to enlarge it. Certificates uploaded here are only previewed in your own browser.
-          To show them permanently on the site, upload the image files to your repository and list them in the <code>CERTIFICATES</code> list inside the script at the bottom of this file.
-        </p>
-        <div class="cert-grid" id="certGrid" aria-live="polite"></div>
       </div>
     </section>
 
@@ -579,9 +573,24 @@ WHERE status = 'available';</code></pre>
      2) Add an entry below (title, issuer, file). */
   var CERTIFICATES = [
     {
-      title: 'Python Essentials 1',
-      issuer: 'Cisco Networking Academy',
-      file: 'cisco-python-essentials-1.jpg'
+      title: 'Learn CCNA 200-301: Network Fundamentals',
+      issuer: 'Certificate of Completion',
+      file: 'Certificate_of_Completion_Learn CCNA 200-301 Network Fundamentals Online_page-0001.jpg'
+    },
+    {
+      title: 'IT Essentials 7',
+      issuer: 'Certificate',
+      file: 'IT_Essentials_7_certificate_christian-fajarito-ecoast-panpacificu-edu-ph_bdc4fbee-e6c6-4feb-9ca0-9af42cf5e873_page-0001.jpg'
+    },
+    {
+      title: 'Networking Basics',
+      issuer: 'Certificate',
+      file: 'Networking_Basics_Badge20241010-8-almu0j_page-0001.jpg'
+    },
+    {
+      title: 'Python Essentials 2',
+      issuer: 'Certificate',
+      file: 'Python_Essentials_2_Badge20241010-7-i1go6y_page-0001.jpg'
     }
   ];
 
@@ -590,7 +599,7 @@ WHERE status = 'available';</code></pre>
   var navMenu = document.getElementById('navMenu');
   var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-link'));
   var certGrid = document.getElementById('certGrid');
-  var certUpload = document.getElementById('certUpload');
+  var certGallery = document.getElementById('certGallery');
   var lightbox = document.getElementById('lightbox');
   var lightboxImg = document.getElementById('lightboxImg');
   var lightboxClose = document.getElementById('lightboxClose');
@@ -678,16 +687,9 @@ WHERE status = 'available';</code></pre>
 
     var img = document.createElement('img');
     img.alt = cert.title + (cert.issuer ? ' certificate, ' + cert.issuer : ' certificate');
-    img.loading = 'lazy';
-    img.addEventListener('error', function () {
-      imgWrap.textContent = '';
-      var ph = document.createElement('span');
-      ph.className = 'cert-ph';
-      ph.textContent = 'Certificate image not added yet. Place the file at ' + cert.file;
-      imgWrap.appendChild(ph);
-      btn.dataset.missing = 'true';
-    });
-    img.src = cert.file;
+    img.addEventListener('error', function () { btn.remove(); });
+    img.addEventListener('load', function () { certGallery.hidden = false; });
+    img.src = encodeURI(cert.file);
     imgWrap.appendChild(img);
 
     var cap = document.createElement('div');
@@ -702,23 +704,12 @@ WHERE status = 'available';</code></pre>
     btn.appendChild(imgWrap);
     btn.appendChild(cap);
     btn.addEventListener('click', function () {
-      if (btn.dataset.missing === 'true') return;
       openLightbox(img.src, img.alt, btn);
     });
     return btn;
   }
 
   CERTIFICATES.forEach(function (c) { certGrid.appendChild(makeCertCard(c)); });
-
-  certUpload.addEventListener('change', function () {
-    Array.prototype.forEach.call(certUpload.files, function (file) {
-      if (!file.type || file.type.indexOf('image/') !== 0) return;
-      var url = URL.createObjectURL(file);
-      var title = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
-      certGrid.appendChild(makeCertCard({ title: title, issuer: 'Uploaded preview', file: url }));
-    });
-    certUpload.value = '';
-  });
 
   /* ---------- Lightbox ---------- */
   function openLightbox(src, alt, trigger) {
